@@ -1,0 +1,21 @@
+function load_sresult(){
+	loading('results');
+	var request_url='http://phimchieurap.vn/ajax/'+window.btoa(
+			JSON.stringify(
+					{'ajax_type':'lich-chieu-filter',
+					'ajax_filter_sphim':jQuery('#sphim').find('.current-item').attr('data-value'),
+					'ajax_filter_srap':jQuery('#srap').find('.current-item').attr('data-value'),
+					'ajax_filter_sdate':jQuery('#sdate').find('.current-item').attr('data-value'),
+					'ajax_filter_slocation':jQuery('#slocation').find('.current-item').attr('data-value'),}))+'/';
+	jQuery.get(request_url).done(function(data){
+		jQuery('#results').html(data);
+		ajax_imdb();
+		loaded('results');
+		jQuery('article.phim-default .add-filter').click(function(){});
+	});
+}
+
+
+JSON.stringify({'ajax_type':'lich-chieu-filter','ajax_filter_sphim':'36080','ajax_filter_srap':'2','ajax_filter_sdate':'2015-10-06','ajax_filter_slocation':'10',})
+
+"http://phimchieurap.vn/ajax/eyJhamF4X3R5cGUiOiJsaWNoLWNoaWV1LWZpbHRlciIsImFqYXhfZmlsdGVyX3NwaGltIjoiMzYwODAiLCJhamF4X2ZpbHRlcl9zcmFwIjoiMiIsImFqYXhfZmlsdGVyX3NkYXRlIjoiMjAxNS0xMC0wNiIsImFqYXhfZmlsdGVyX3Nsb2NhdGlvbiI6IjEwIn0=/"
