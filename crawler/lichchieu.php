@@ -53,18 +53,15 @@
 		}
 	}
 	
-	$date=new DateTime();
-	$stringDate=$date->format('YmdHis');
-	$file_path="./csv/{$stringDate}.csv";
-	$file=new SplFileObject($file_path,"w");
-
-	$export_header=array("Cum rap", "Rap", "Xuat chieu", "Xuat1", "Xuat2", "Xuat3", "Xuat4", "Xuat5");
-	$file->fputcsv($export_header);
-
 	$counter = 0;
-	foreach ($ajax_filter_sphim as $sphim) {
-		foreach ($ajax_filter_sdate as $sdate) {
-			
+	foreach ($ajax_filter_sdate as $sdate) {
+		$file_path="./csv/{$sdate}.csv";
+		$file=new SplFileObject($file_path,"w");
+
+		$export_header=array("Cum rap", "Rap", "Xuat chieu", "Xuat1", "Xuat2", "Xuat3", "Xuat4", "Xuat5");
+		$file->fputcsv($export_header);
+
+		foreach ($ajax_filter_sphim as $sphim) {
 			$params_array = array('ajax_type'=>'lich-chieu-filter',
 						'ajax_filter_sphim'=>$sphim,
 						'ajax_filter_srap'=>"0",

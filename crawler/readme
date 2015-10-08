@@ -19,3 +19,7 @@ function load_sresult(){
 JSON.stringify({'ajax_type':'lich-chieu-filter','ajax_filter_sphim':'36080','ajax_filter_srap':'2','ajax_filter_sdate':'2015-10-06','ajax_filter_slocation':'10',})
 
 "http://phimchieurap.vn/ajax/eyJhamF4X3R5cGUiOiJsaWNoLWNoaWV1LWZpbHRlciIsImFqYXhfZmlsdGVyX3NwaGltIjoiMzYwODAiLCJhamF4X2ZpbHRlcl9zcmFwIjoiMiIsImFqYXhfZmlsdGVyX3NkYXRlIjoiMjAxNS0xMC0wNiIsImFqYXhfZmlsdGVyX3Nsb2NhdGlvbiI6IjEwIn0=/"
+
+http://phimchieurap.vn/ajax/eyJhamF4X3R5cGUiOiJsaWNoLWNoaWV1LWZpbHRlciIsImFqYXhfZmlsdGVyX3NwaGltIjoiMzYwODAiLCJhamF4X2ZpbHRlcl9zcmFwIjoiMCIsImFqYXhfZmlsdGVyX3NkYXRlIjoiMjAxNS0xMC0wOCIsImFqYXhfZmlsdGVyX3Nsb2NhdGlvbiI6IjAifQ==/
+
+
