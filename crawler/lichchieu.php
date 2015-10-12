@@ -69,6 +69,7 @@
 	}
 
 	$counter = 0;
+	$phim_info = [];
 	foreach ($ajax_filter_sdate as $sdate) {
 		$file_path="./csv/{$sdate}.csv";
 		$file=new SplFileObject($file_path,"w");
@@ -104,6 +105,27 @@
 			if (!$linkOK) {
 				continue;
 			}
+
+			if (!array_key_exists($kphim, $phim_info)) {
+				$phim_urls = ['http://phimchieurap.vn/phim/danh-muc/phim-dang-chieu/',
+							"http://phimchieurap.vn/phim/danh-muc/phim-sap-chieu/"];
+				foreach ($phim_urls as $phim_url) {
+					$html_phim_info = file_get_html($phim_url);
+					if ( $html_phim_info ) {
+						$article_tag = sprintf('article[class=post-%s]', $kphim);
+						$article = $html_phim_info->find($article_tag, 0);
+						if ( $article ) {
+							$item['title']     = $article->find('h3[class=title]', 0)->plaintext;
+						    $item['excerpt']    = $article->find('div[class=excerpt]', 0);
+						    $item['date'] = $article->find('i[class=fa]', 0)->plaintext;
+						    $phim_info[$kphim] = $item;
+						    echo $item['title'] . '\t' . $item['excerpt'] . '\t' . $item['date'] . '<br>';
+						    exit();
+						}
+					}
+				}
+			}
+			continue;
 
 			foreach ($ajax_filter_slocation as $kloc => $sloc) {
 				//echo "$sphim/$ajax_filter_sposter[$kphim]/$sloc/$sdate" . '<br>';
