@@ -118,8 +118,18 @@
 							$html_title = $article->find('h3[class=title]', 0);
 							$item['title']     = $html_title->plaintext;
 
-							$html_infos = file_get_html($html_title->find('a', 0)->href)
-										->find($article_tag, 0);
+							$html_link = $html_title->find('a', 0);
+							if (!$html_link ) {
+								continue;
+							}
+							$html_infos_link = file_get_html($html_link->href);
+							if (!$html_infos_link ) {
+								continue;
+							}
+							$html_infos = $html_infos_link->find($article_tag, 0);
+							if (!$html_infos ) {
+								continue;
+							}
 							//echo $html_infos->outertext; 
 						    //exit();
 						    $item['excerpt']    = $html_infos->find('div[class=excerpt] p', 0);
@@ -132,15 +142,15 @@
 						    $item['acts']    = $html_infos->find('div[class=acts]', 0);
 						    $item['content']    = $html_infos->find('div[class=content]', 0);
 
-						    $imdb_id = $html_infos->getAttribute('data-imdb');
+						    $html_imdb_id = $html_infos->find('div[class=tools] dl dt span', 0);
+						    $imdb_id = $html_imdb_id->getAttribute('data-imdb');
 						    $params_imdb = array('ajax_type'=>'imdb',
-							'ajax_filter_sphim'=>$kphim,
-							'ajax_imdb_id'=>$imdb_id);
+									'ajax_imdb_id'=>$imdb_id);
 							$params_imdb_json_encode = json_encode($params_imdb);
 							$params_imdb_base64_encode = base64_encode($params_imdb_json_encode);
 							$imdb_url = sprintf('http://phimchieurap.vn/ajax/%s/', $params_imdb_base64_encode);
 							$html_imdb = file_get_html($imdb_url);
-							$item['imdb'] = json_decode($html_imdb->innertext);
+							$item['imdb'] = json_decode($html_imdb->plaintext, true)['score'];
 
 						    $phim_info[$kphim] = $item;
 						    
@@ -151,10 +161,11 @@
 						    	$item['theloai']->plaintext . 
 						    	$item['daodien']->plaintext . 
 						    	$item['sanxuat']->plaintext . 
-						    	$item['imdb']['score'] . 
+						    	$item['imdb'] . 
 						    	$item['acts'] . 
 						    	$item['content'] . 
 						    	'<br>';
+						    exit();
 						}
 					}
 				}
