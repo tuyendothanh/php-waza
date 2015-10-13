@@ -115,12 +115,46 @@
 						$article_tag = sprintf('article[class=post-%s]', $kphim);
 						$article = $html_phim_info->find($article_tag, 0);
 						if ( $article ) {
-							$item['title']     = $article->find('h3[class=title]', 0)->plaintext;
-						    $item['excerpt']    = $article->find('div[class=excerpt]', 0);
-						    $item['date'] = $article->find('i[class=fa]', 0)->plaintext;
+							$html_title = $article->find('h3[class=title]', 0);
+							$item['title']     = $html_title->plaintext;
+
+							$html_infos = file_get_html($html_title->find('a', 0)->href)
+										->find($article_tag, 0);
+							//echo $html_infos->outertext; 
+						    //exit();
+						    $item['excerpt']    = $html_infos->find('div[class=excerpt] p', 0);
+						    $item['date'] = $html_infos->find('div[class="phim-date-mobile]', 0)
+						    				->plaintext;
+						    $item['thoigian']    = $html_infos->find('div[class=infos] div', 0);
+						    $item['theloai']    = $html_infos->find('div[class=infos] div', 1);
+						    $item['daodien']    = $html_infos->find('div[class=infos] div', 2);
+						    $item['sanxuat']    = $html_infos->find('div[class=infos] div', 3);
+						    $item['acts']    = $html_infos->find('div[class=acts]', 0);
+						    $item['content']    = $html_infos->find('div[class=content]', 0);
+
+						    $imdb_id = $html_infos->getAttribute('data-imdb');
+						    $params_imdb = array('ajax_type'=>'imdb',
+							'ajax_filter_sphim'=>$kphim,
+							'ajax_imdb_id'=>$imdb_id);
+							$params_imdb_json_encode = json_encode($params_imdb);
+							$params_imdb_base64_encode = base64_encode($params_imdb_json_encode);
+							$imdb_url = sprintf('http://phimchieurap.vn/ajax/%s/', $params_imdb_base64_encode);
+							$html_imdb = file_get_html($imdb_url);
+							$item['imdb'] = json_decode($html_imdb->innertext);
+
 						    $phim_info[$kphim] = $item;
-						    echo $item['title'] . '\t' . $item['excerpt'] . '\t' . $item['date'] . '<br>';
-						    exit();
+						    
+						    echo $item['title'] . '\t' . 
+						    	$item['excerpt'] . '\t' . 
+						    	$item['date'] . 
+						    	$item['thoigian']->plaintext . 
+						    	$item['theloai']->plaintext . 
+						    	$item['daodien']->plaintext . 
+						    	$item['sanxuat']->plaintext . 
+						    	$item['imdb']['score'] . 
+						    	$item['acts'] . 
+						    	$item['content'] . 
+						    	'<br>';
 						}
 					}
 				}
