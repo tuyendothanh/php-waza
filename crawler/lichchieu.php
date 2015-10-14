@@ -82,12 +82,13 @@
 		if ($i==1) {
 			$my_url = 'http://phimchieurap.vn/phim/danh-muc/phim-dang-chieu/';
 		}
-		$html_phim_info = file_get_html($my_url);
-		foreach ($html_phim_info->find('article') as $html_post) {
+		$html_phim_infos = file_get_html($my_url);
+		foreach ($html_phim_infos->find('article') as $html_post) {
+			set_time_limit(30);
 			$posts = $html_post->getAttribute('class');
 			preg_match("/[0-9]+/", $posts, $kphims);
 			if ($kphims) {
-				$kphim = [0];
+				$kphim = $kphims[0];
 				$html_title = $html_post->find('h3[class=title]', 0);
 				if ($html_title) {
 					$html_link = $html_title->find('a', 0);
@@ -99,6 +100,8 @@
 							$html_infos = $html_phim_info->find($article_tag, 0);
 							if ( $html_infos ) {
 								$html_title = $html_infos->find('h1[class=title]', 0);
+								$item = [];
+								
 								$item['title']     = $html_title->plaintext;
 							    $item['excerpt']    = $html_infos->find('div[class=excerpt] p', 0);
 							    $item['date'] = $html_infos->find('div[class="phim-date-mobile]', 0)->plaintext;
@@ -117,7 +120,7 @@
 								$imdb_url = sprintf('http://phimchieurap.vn/ajax/%s/', $params_imdb_base64_encode);
 								$html_imdb = file_get_html($imdb_url);
 								$item['imdb'] = json_decode($html_imdb->plaintext, true)['score'];
-
+								
 							    $phim_infos[$kphim] = $item;
 							    /*
 							    echo $item['title'] . '\t' . 
@@ -140,6 +143,8 @@
 			}
 		}
 	}
+	var_dump($phim_infos);
+	exit();
 
 	$counter = 0;
 	
@@ -147,7 +152,9 @@
 		$file_path="./csv/{$sdate}.csv";
 		$file=new SplFileObject($file_path,"w");
 
-		$export_header=array("Phim", "Poster", "Địa Điểm", "Rạp", "Số Xuất Chiếu", "Ngày Chiếu");
+		$export_header=array("Phim", "Poster", "Địa Điểm", "Rạp", 
+						"excerpt", "thoigian", "theloai", "daodien", "sanxuat", "acts", "content", "imdb", 
+						"Số Xuất Chiếu", "Ngày Chiếu");
 		$file->fputcsv($export_header);
 
 		echo '<table border="1"><thead><tr>';
@@ -224,8 +231,20 @@
 							$times_counter++;
 							$time_text[] = trim(preg_replace('/\t+/', '', $html_time->find('a', 0)->plaintext));
 						}
+						
+						$value_phim_info = $phim_infos[$kphim];
+						$session_rap[] = $value_phim_info['excerpt'];
+						$session_rap[] = $value_phim_info['thoigian'];
+						$session_rap[] = $value_phim_info['theloai'];
+						$session_rap[] = $value_phim_info['daodien'];
+						$session_rap[] = $value_phim_info['sanxuat'];
+						$session_rap[] = $value_phim_info['acts'];
+						$session_rap[] = $value_phim_info['content'];
+						$session_rap[] = $value_phim_info['imdb'];
+
 						$session_rap[] = $times_counter;
 						$session_rap[] = $sdate;
+
 						$session_sphim[] = array_merge($session_rap, $time_text);
 					}
 					else {
@@ -240,25 +259,12 @@
 						foreach ($value as $fld) {
 							echo '<th>' . $fld . '</th>';
 						}
-						$value_phim_info = $phim_infos[$kphim];
-						foreach ($phim_infos as $key_phim_info => $value_phim_info) {
-							/*
-							echo $item['title'] . '\t' . 
-							    	$item['excerpt'] . '\t' . 
-							    	$item['date'] . 
-							    	$item['thoigian']->plaintext . 
-							    	$item['theloai']->plaintext . 
-							    	$item['daodien']->plaintext . 
-							    	$item['sanxuat']->plaintext . 
-							    	$item['imdb'] . 
-							    	$item['acts'] . 
-							    	$item['content'];
-							*/
-						}
 						echo '</tr>';
 						$file->fputcsv($value);
 					}
 					$counter++;
+					echo '</tbody></table>';
+					exit();
 				}
 			}
 		}
