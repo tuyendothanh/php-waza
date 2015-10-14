@@ -68,6 +68,9 @@
 		}
 	}
 
+	$file_path="./csv/film_content.csv";
+	$content_file=new SplFileObject($file_path,"w");
+
 	$phim_infos = [];
 
 	$pagination_last = 1;
@@ -89,62 +92,94 @@
 			preg_match("/[0-9]+/", $posts, $kphims);
 			if ($kphims) {
 				$kphim = $kphims[0];
-				$html_title = $html_post->find('h3[class=title]', 0);
-				if ($html_title) {
-					$html_link = $html_title->find('a', 0);
-					if ($html_link ) {
-						//$phim_info_links[$kphim] = $html_link->href; //$my_url;
-						$html_phim_info = file_get_html($html_link->href);
-						if ( $html_phim_info ) {
-							$article_tag = sprintf('article[class=post-%s]', $kphim);
-							$html_infos = $html_phim_info->find($article_tag, 0);
-							if ( $html_infos ) {
-								$html_title = $html_infos->find('h1[class=title]', 0);
-								$item = [];
-								
-								$item['title']     = $html_title->plaintext;
-							    $item['excerpt']    = $html_infos->find('div[class=excerpt] p', 0);
-							    $item['date'] = $html_infos->find('div[class="phim-date-mobile]', 0)->plaintext;
-							    $item['thoigian']    = $html_infos->find('div[class=infos] div', 0);
-							    $item['theloai']    = $html_infos->find('div[class=infos] div', 1);
-							    $item['daodien']    = $html_infos->find('div[class=infos] div', 2);
-							    $item['sanxuat']    = $html_infos->find('div[class=infos] div', 3);
-							    $item['acts']    = $html_infos->find('div[class=acts]', 0);
-							    $item['content']    = $html_infos->find('div[class=content]', 0);
+				if (array_key_exists($kphim, $ajax_filter_sphim)) {
+				    $html_title = $html_post->find('h3[class=title]', 0);
+					if ($html_title) {
+						$html_link = $html_title->find('a', 0);
+						if ($html_link ) {
+							//$phim_info_links[$kphim] = $html_link->href; //$my_url;
+							$html_phim_info = file_get_html($html_link->href);
+							if ( $html_phim_info ) {
+								$article_tag = sprintf('article[class=post-%s]', $kphim);
+								$html_infos = $html_phim_info->find($article_tag, 0);
+								if ( $html_infos ) {
+									$html_title = $html_infos->find('h1[class=title]', 0);
+									$item = [];
+									
+									$html_tmp = $html_title;
+									$item['title']     = ($html_tmp) ? $html_tmp->plaintext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=excerpt] p', 0);
+								    $item['excerpt']    = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class="phim-date-mobile]', 0);
+								    $item['date'] = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=infos] div', 0);
+								    $item['thoigian']    = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=infos] div', 1);
+								    $item['theloai']    = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=infos] div', 2);
+								    $item['daodien']    = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=infos] div', 3);
+								    $item['sanxuat']    = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=acts]', 0);
+								    $item['acts']    = ($html_tmp) ? $html_tmp->outertext : '';
+								    
+								    $html_tmp = $html_infos->find('div[class=content]', 0);
+								    $item['content']    = ($html_tmp) ? $html_tmp->outertext : '';
 
-							    $html_imdb_id = $html_infos->find('div[class=tools] dl dt span', 0);
-							    $imdb_id = $html_imdb_id->getAttribute('data-imdb');
-							    $params_imdb = array('ajax_type'=>'imdb', 'ajax_imdb_id'=>$imdb_id);
-								$params_imdb_json_encode = json_encode($params_imdb);
-								$params_imdb_base64_encode = base64_encode($params_imdb_json_encode);
-								$imdb_url = sprintf('http://phimchieurap.vn/ajax/%s/', $params_imdb_base64_encode);
-								$html_imdb = file_get_html($imdb_url);
-								$item['imdb'] = json_decode($html_imdb->plaintext, true)['score'];
-								
-							    $phim_infos[$kphim] = $item;
-							    /*
-							    echo $item['title'] . '\t' . 
-							    	$item['excerpt'] . '\t' . 
-							    	$item['date'] . 
-							    	$item['thoigian']->plaintext . 
-							    	$item['theloai']->plaintext . 
-							    	$item['daodien']->plaintext . 
-							    	$item['sanxuat']->plaintext . 
-							    	$item['imdb'] . 
-							    	$item['acts'] . 
-							    	$item['content'] . 
-							    	'<br>';
-							    */
+								    $html_imdb_id = $html_infos->find('div[class=tools] dl dt span', 0);
+								    $imdb_id = $html_imdb_id->getAttribute('data-imdb');
+								    $params_imdb = array('ajax_type'=>'imdb', 'ajax_imdb_id'=>$imdb_id);
+									$params_imdb_json_encode = json_encode($params_imdb);
+									$params_imdb_base64_encode = base64_encode($params_imdb_json_encode);
+									$imdb_url = sprintf('http://phimchieurap.vn/ajax/%s/', $params_imdb_base64_encode);
+									$html_imdb = file_get_html($imdb_url);
+									$item['imdb'] = json_decode($html_imdb->plaintext, true)['score'];
+									
+									$export_content=array($kphim,
+														$item['title'],
+														$item['excerpt'],
+														$item['date'],
+														$item['thoigian'],
+														$item['theloai'],
+														$item['daodien'],
+														$item['sanxuat'],
+														$item['content'],
+														$item['imdb']);
+									$content_file->fputcsv($export_content);
+
+								    $phim_infos[$kphim] = $item;
+								    /*
+								    echo $item['title'] . '\t' . 
+								    	$item['excerpt'] . '\t' . 
+								    	$item['date'] . 
+								    	$item['thoigian']->plaintext . 
+								    	$item['theloai']->plaintext . 
+								    	$item['daodien']->plaintext . 
+								    	$item['sanxuat']->plaintext . 
+								    	$item['imdb'] . 
+								    	$item['acts'] . 
+								    	$item['content'] . 
+								    	'<br>';
+								    */
+								}
 							}
-						}
 
+						}
 					}
+
 				}
 			}
 		}
 	}
-	var_dump($phim_infos);
-	exit();
+	$content_file = null;
+	//var_dump($phim_infos);
 
 	$counter = 0;
 	
@@ -264,7 +299,10 @@
 					}
 					$counter++;
 					echo '</tbody></table>';
-					exit();
+
+					flush();
+				    ob_flush();
+				    sleep(1);
 				}
 			}
 		}
